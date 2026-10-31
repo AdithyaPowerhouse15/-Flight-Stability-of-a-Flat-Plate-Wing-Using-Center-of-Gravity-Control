@@ -28,226 +28,194 @@ body {
   background: #0b0f19;
   color: #f3f4f6;
 }
-input[type=range] { accent-color: #38bdf8; width:100%; }
-canvas { display:block; width:100%; height:100%; }
+input[type=range] { accent-color: #38bdf8; width: 100%; cursor: pointer; }
 .panel {
-  background:#111827;
-  border:1px solid #1f2937;
-  border-radius:16px;
-  padding:18px;
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 18px;
 }
 .metric {
-  background:#0b0f19;
-  border:1px solid #374151;
-  border-radius:12px;
-  padding:12px;
+  background: #0b0f19;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 12px;
 }
 </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen pb-10">
 
-<header class="bg-aerospace-800 border-b border-slate-700 p-5 flex flex-wrap justify-between gap-4">
+<header class="bg-aerospace-800 border-b border-slate-700 p-5 flex flex-wrap justify-between items-center gap-4">
   <div>
     <h1 class="text-xl font-bold text-white">Flat-Plate Wing Flight Stability Simulator</h1>
     <p class="text-xs text-slate-400 mt-1">Aerodynamics & CG Control | Square Diamond Configuration</p>
   </div>
   <div class="flex flex-wrap gap-2">
-    <button onclick="setPreset('stable')" class="bg-emerald-700/40 text-emerald-300 border border-emerald-600 rounded-lg px-3 py-2 text-xs">Stable</button>
-    <button onclick="setPreset('neutral')" class="bg-amber-700/40 text-amber-300 border border-amber-600 rounded-lg px-3 py-2 text-xs">Neutral</button>
-    <button onclick="setPreset('unstable')" class="bg-rose-700/40 text-rose-300 border border-rose-600 rounded-lg px-3 py-2 text-xs">Unstable</button>
-    <button onclick="resetSimulation()" class="bg-slate-700 rounded-lg px-3 py-2 text-xs">Reset</button>
+    <button onclick="setPreset('stable')" class="bg-emerald-600/30 text-emerald-300 border border-emerald-500 hover:bg-emerald-600/50 rounded-lg px-3 py-2 text-xs font-medium cursor-pointer">Stable Preset</button>
+    <button onclick="setPreset('neutral')" class="bg-amber-600/30 text-amber-300 border border-amber-500 hover:bg-amber-600/50 rounded-lg px-3 py-2 text-xs font-medium cursor-pointer">Neutral Preset</button>
+    <button onclick="setPreset('unstable')" class="bg-rose-600/30 text-rose-300 border border-rose-500 hover:bg-rose-600/50 rounded-lg px-3 py-2 text-xs font-medium cursor-pointer">Unstable Preset</button>
+    <button onclick="resetSimulation()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg px-3 py-2 text-xs font-medium cursor-pointer">Reset</button>
   </div>
 </header>
 
 <main class="max-w-[1600px] mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-5">
 
+<!-- CONTROLS & TELEMETRY SECTION -->
 <section class="lg:col-span-5 space-y-5">
 
-<div class="panel">
+<div class="panel shadow-xl">
   <div class="flex justify-between items-center mb-5">
     <h2 class="text-sm font-bold uppercase text-sky-400">Flight & Mass Parameters</h2>
-    <span id="mode" class="text-xs rounded-full px-3 py-1 bg-emerald-500/20 text-emerald-300">Stable</span>
+    <span id="modeBadge" class="text-xs rounded-full px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">Stable CG</span>
   </div>
 
-  <div class="space-y-5">
+  <div class="space-y-4">
+    <div>
+      <div class="flex justify-between text-xs mb-1">
+        <label class="text-slate-300">Ballast Mass (added mass)</label>
+        <span id="ballastVal" class="text-sky-400 font-mono font-bold">200 g</span>
+      </div>
+      <input id="ballastInput" type="range" min="0" max="300" step="10" value="200">
+    </div>
 
     <div>
-      <div class="flex justify-between text-xs mb-2">
-        <label>Ballast Mass (added mass)</label>
-        <b id="ballastVal" class="text-sky-400">200 g</b>
+      <div class="flex justify-between text-xs mb-1">
+        <label class="text-slate-300">CG Position Relative to AC</label>
+        <span id="cgVal" class="text-sky-400 font-mono font-bold">+35 mm</span>
       </div>
-      <input id="ballast" type="range" min="0" max="300" step="10" value="200">
-      <div class="flex justify-between text-[10px] text-slate-500">
-        <span>0 g</span><span>300 g</span>
+      <input id="cgInput" type="range" min="-30" max="60" step="1" value="35">
+      <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+        <span>-30mm: Aft (Unstable)</span>
+        <span>0: AC</span>
+        <span>+60mm: Fwd (Stable)</span>
       </div>
     </div>
 
     <div>
-      <div class="flex justify-between text-xs mb-2">
-        <label>CG Position Relative to AC</label>
-        <b id="cgVal" class="text-sky-400">+35 mm</b>
+      <div class="flex justify-between text-xs mb-1">
+        <label class="text-slate-300">Launch Angle of Attack (AoA)</label>
+        <span id="aoaVal" class="text-sky-400 font-mono font-bold">5.0°</span>
       </div>
-      <input id="cg" type="range" min="-30" max="60" step="1" value="35">
-      <div class="flex justify-between text-[10px] text-slate-500">
-        <span>-30 mm: Aft</span><span>0: AC</span><span>+60 mm: Forward</span>
-      </div>
+      <input id="aoaInput" type="range" min="-5" max="25" step="0.5" value="5">
     </div>
 
     <div>
-      <div class="flex justify-between text-xs mb-2">
-        <label>Launch Angle of Attack</label>
-        <b id="aoaVal" class="text-sky-400">5.0°</b>
+      <div class="flex justify-between text-xs mb-1">
+        <label class="text-slate-300">Initial Airspeed</label>
+        <span id="speedVal" class="text-sky-400 font-mono font-bold">12.0 m/s</span>
       </div>
-      <input id="aoa" type="range" min="-5" max="25" step="0.5" value="5">
+      <input id="speedInput" type="range" min="5" max="25" step="0.5" value="12">
     </div>
-
-    <div>
-      <div class="flex justify-between text-xs mb-2">
-        <label>Initial Airspeed</label>
-        <b id="speedVal" class="text-sky-400">12.0 m/s</b>
-      </div>
-      <input id="speed" type="range" min="5" max="25" step="0.5" value="12">
-    </div>
-
   </div>
 
   <div class="grid grid-cols-2 gap-3 mt-6">
-    <button onclick="triggerLaunch()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-xl py-3">▶ Launch</button>
-    <button onclick="togglePause()" id="pauseBtn" class="bg-slate-700 hover:bg-slate-600 rounded-xl py-3">Pause</button>
+    <button onclick="resetSimulation()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-xl py-3 text-sm cursor-pointer shadow-lg shadow-sky-500/20 transition-all">▶ Launch / Reset</button>
+    <button onclick="togglePause()" id="pauseBtn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl py-3 text-sm cursor-pointer transition-all">Pause</button>
   </div>
 </div>
 
-<div class="panel">
-  <h3 class="text-xs uppercase font-bold text-slate-400 mb-3">Live Telemetry</h3>
+<div class="panel shadow-xl">
+  <h3 class="text-xs uppercase font-bold text-slate-400 mb-3 tracking-wider">Live Telemetry</h3>
   <div class="grid grid-cols-2 gap-3">
-    <div class="metric">
-      <span class="text-xs text-slate-400">Pitch Angle</span>
-      <div id="telePitch" class="text-xl font-mono text-white">5.0°</div>
-    </div>
-    <div class="metric">
-      <span class="text-xs text-slate-400">Altitude</span>
-      <div id="teleAlt" class="text-xl font-mono text-sky-400">10.0 m</div>
-    </div>
-    <div class="metric">
-      <span class="text-xs text-slate-400">Lift Force</span>
-      <div id="teleLift" class="text-xl font-mono text-emerald-400">0 N</div>
-    </div>
-    <div class="metric">
-      <span class="text-xs text-slate-400">Pitch Moment</span>
-      <div id="teleMoment" class="text-xl font-mono text-amber-400">0 Nm</div>
-    </div>
-    <div class="metric">
-      <span class="text-xs text-slate-400">Airspeed</span>
-      <div id="teleSpeed" class="text-xl font-mono text-white">12 m/s</div>
-    </div>
-    <div class="metric">
-      <span class="text-xs text-slate-400">Angle of Attack</span>
-      <div id="teleAlpha" class="text-xl font-mono text-white">5.0°</div>
-    </div>
+    <div class="metric"><span class="text-[11px] text-slate-400">Pitch Angle</span><div id="telePitch" class="text-lg font-mono text-white mt-1">5.0°</div></div>
+    <div class="metric"><span class="text-[11px] text-slate-400">Altitude</span><div id="teleAlt" class="text-lg font-mono text-sky-400 mt-1">10.00 m</div></div>
+    <div class="metric"><span class="text-[11px] text-slate-400">Lift Force</span><div id="teleLift" class="text-lg font-mono text-emerald-400 mt-1">0.00 N</div></div>
+    <div class="metric"><span class="text-[11px] text-slate-400">Pitch Moment</span><div id="teleMoment" class="text-lg font-mono text-amber-400 mt-1">0.000 Nm</div></div>
+    <div class="metric"><span class="text-[11px] text-slate-400">Airspeed</span><div id="teleSpeed" class="text-lg font-mono text-white mt-1">12.0 m/s</div></div>
+    <div class="metric"><span class="text-[11px] text-slate-400">Angle of Attack</span><div id="teleAlpha" class="text-lg font-mono text-white mt-1">5.0°</div></div>
   </div>
 </div>
 
-<div class="panel">
-  <h3 class="text-xs uppercase font-bold text-sky-400 mb-3">Aerodynamic Theory</h3>
-  <p id="theory" class="text-xs text-slate-300 leading-relaxed">
-    A CG ahead of the aerodynamic center produces a restoring nose-down moment when the angle of attack increases, providing positive longitudinal static stability in this simplified model.
-  </p>
-  <p class="text-[10px] text-slate-500 mt-3">
-    Educational model: coefficients, inertia, and geometry are approximate. Actual aircraft performance requires experimental or validated aerodynamic data.
+<div class="panel shadow-xl">
+  <h3 class="text-xs uppercase font-bold text-sky-400 mb-2 tracking-wider">Aerodynamic Theory Insight</h3>
+  <p id="theoryText" class="text-xs text-slate-300 leading-relaxed">
+    With the CG positioned ahead of the Aerodynamic Center (AC), an increase in angle of attack generates a restoring nose-down pitching moment, providing positive longitudinal static stability.
   </p>
 </div>
 
 </section>
 
+<!-- VISUALIZER & CHARTS SECTION -->
 <section class="lg:col-span-7 space-y-5">
 
-<div class="panel">
+<div class="panel shadow-xl">
   <div class="flex justify-between items-center mb-3">
-    <h3 class="text-xs uppercase font-bold text-slate-400">Square Diamond Wing Visualizer</h3>
-    <span class="text-xs text-sky-400">AC ● &nbsp; <span class="text-rose-400">CG ●</span></span>
+    <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider">Square Diamond Wing Visualizer</h3>
+    <div class="text-xs space-x-3"><span class="text-sky-400 font-medium">● AC (1/4 MAC)</span> <span class="text-rose-400 font-medium">● CG</span></div>
   </div>
-  <div class="relative h-[380px] bg-aerospace-900 rounded-xl overflow-hidden border border-slate-700">
-    <canvas id="simCanvas"></canvas>
-    <div class="absolute top-3 left-3 bg-slate-900/80 rounded-lg p-2 text-xs font-mono">
-      Time: <span id="hudTime" class="text-sky-400">0.00 s</span>
-      <br>
-      Range: <span id="hudDist" class="text-emerald-400">0.0 m</span>
+  <div class="relative h-[360px] bg-aerospace-900 rounded-xl overflow-hidden border border-slate-700">
+    <canvas id="simCanvas" class="w-full h-full"></canvas>
+    <div class="absolute top-3 left-3 bg-slate-900/90 border border-slate-700/60 rounded-lg px-3 py-2 text-xs font-mono shadow-md">
+      Flight Time: <span id="hudTime" class="text-sky-400 font-bold">0.00 s</span><br>
+      Downrange: <span id="hudDist" class="text-emerald-400 font-bold">0.0 m</span>
     </div>
   </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-  <div class="panel">
-    <h3 class="text-xs uppercase font-bold text-slate-400 mb-3">Pitch Angle vs Time</h3>
-    <div class="h-36 bg-slate-950 rounded-lg overflow-hidden">
-      <canvas id="pitchChart"></canvas>
+  <div class="panel shadow-xl">
+    <h3 class="text-xs uppercase font-bold text-slate-400 mb-2 tracking-wider">Pitch Angle vs Time</h3>
+    <div class="h-32 bg-slate-950 rounded-lg overflow-hidden border border-slate-800 relative">
+      <canvas id="pitchCanvas" class="w-full h-full"></canvas>
     </div>
   </div>
-  <div class="panel">
-    <h3 class="text-xs uppercase font-bold text-slate-400 mb-3">Altitude vs Range</h3>
-    <div class="h-36 bg-slate-950 rounded-lg overflow-hidden">
-      <canvas id="trajChart"></canvas>
+  <div class="panel shadow-xl">
+    <h3 class="text-xs uppercase font-bold text-slate-400 mb-2 tracking-wider">Flight Trajectory (Alt vs Range)</h3>
+    <div class="h-32 bg-slate-950 rounded-lg overflow-hidden border border-slate-800 relative">
+      <canvas id="trajCanvas" class="w-full h-full"></canvas>
     </div>
   </div>
 </div>
 
-<div class="panel">
-  <h3 class="text-xs uppercase font-bold text-slate-400 mb-3">Simulation Status</h3>
-  <p id="status" class="text-sm text-emerald-400">Ready for launch</p>
-  <p class="text-xs text-slate-500 mt-2">
-    Flight-path angle and body pitch are calculated separately. Aerodynamic angle of attack is their difference.
-  </p>
+<div class="panel shadow-xl">
+  <div class="flex justify-between items-center">
+    <div>
+      <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider">Simulation Status</h3>
+      <p id="statusMsg" class="text-sm font-semibold text-emerald-400 mt-1">Ready for flight. Adjust parameters or launch.</p>
+    </div>
+    <div class="text-right">
+      <span class="text-[10px] text-slate-500 uppercase block">Aircraft Model</span>
+      <span class="text-xs text-slate-300 font-mono">1m x 1m Styrofoam Diamond Wing (~545g total)</span>
+    </div>
+  </div>
 </div>
 
 </section>
 </main>
 
-<footer class="text-center text-xs text-slate-500 border-t border-slate-800 py-5">
-  Aircraft Design Student Project | Flat-Plate Wing Aerodynamics & Longitudinal Stability
-</footer>
-
 <script>
 'use strict';
 
-/* =========================================
-   AIRCRAFT MODEL PARAMETERS
-========================================= */
-
 const MODEL = {
-  rho: 1.225,       // Air density, kg/m^3
-  gravity: 9.81,    // m/s^2
-  area: 0.98,       // Reference wing area, m^2
-  chord: 0.94,      // Mean aerodynamic chord, m
-  baseMass: 0.345,  // Base aircraft mass, kg
-  inertia: 0.08,    // Approximate pitch inertia, kg m^2
-  cmAC: 0.0,        // Assumed zero AC pitching moment coefficient
-  cmQ: -8.0,        // Approximate pitch-rate damping derivative
-  cd0: 0.08,        // Simplified zero-alpha drag coefficient
-  dt: 1 / 120       // Fixed simulation step, seconds
+  rho: 1.225,          // Air density (kg/m^3)
+  gravity: 9.81,       // Gravitational acceleration (m/s^2)
+  area: 0.98,          // Wing reference area (m^2)
+  chord: 1.41,         // Mean Aerodynamic Chord / Diagonal (m)
+  baseMass: 0.345,     // Airframe base mass (kg)
+  inertia: 0.08,       // Pitch moment of inertia (kg m^2)
+  cmAC: 0.0,           // Pitching moment coefficient at AC
+  cmQ: -6.5,           // Pitch damping derivative
+  cd0: 0.07,           // Zero-lift drag coefficient
+  dt: 1 / 120          // Simulation fixed timestep
 };
 
-/* =========================================
-   SIMULATION STATE
-========================================= */
-
 const state = {
-  ballast: 200,
-  cgOffset: 35,
-  aoa: 5,
-  speed: 12,
+  ballast: 200,        // grams
+  cgOffset: 35,        // mm ahead of AC
+  aoa: 5.0,            // degrees
+  speed: 12.0,         // m/s
 
-  x: 0,
-  y: 10,
-  vx: 12,
-  vy: 0,
+  x: 0,                // Downrange distance (m)
+  y: 10,               // Altitude (m)
+  vx: 12,              // Horizontal velocity (m/s)
+  vy: 0,               // Vertical velocity (m/s)
 
-  pitch: 5 * Math.PI / 180,
-  pitchRate: 0,
+  pitch: 5 * Math.PI / 180, // Radians
+  pitchRate: 0.0,      // rad/s
 
   time: 0,
   paused: false,
-  launched: false,
   landed: false,
 
   lift: 0,
@@ -258,228 +226,168 @@ const state = {
   history: []
 };
 
+// DOM Element references
 const $ = id => document.getElementById(id);
 
+const ballastInput = $('ballastInput');
+const cgInput = $('cgInput');
+const aoaInput = $('aoaInput');
+const speedInput = $('speedInput');
+
 const simCanvas = $('simCanvas');
-const pitchCanvas = $('pitchChart');
-const trajCanvas = $('trajChart');
+const pitchCanvas = $('pitchCanvas');
+const trajCanvas = $('trajCanvas');
 
 const simCtx = simCanvas.getContext('2d');
 const pitchCtx = pitchCanvas.getContext('2d');
 const trajCtx = trajCanvas.getContext('2d');
 
-/* =========================================
-   CANVAS RESIZING
-========================================= */
-
-function resizeCanvas(canvas) {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-  canvas.width = Math.max(1, Math.round(rect.width * dpr));
-  canvas.height = Math.max(1, Math.round(rect.height * dpr));
-
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  return { w: rect.width, h: rect.height };
+function setupCanvasResolutions() {
+  [simCanvas, pitchCanvas, trajCanvas].forEach(canvas => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  });
 }
-
-function resizeAll() {
-  resizeCanvas(simCanvas);
-  resizeCanvas(pitchCanvas);
-  resizeCanvas(trajCanvas);
-  draw();
-}
-
-window.addEventListener('resize', resizeAll);
-
-/* =========================================
-   INPUTS AND PARAMETERS
-========================================= */
 
 function readInputs() {
-  state.ballast = Number($('ballast').value);
-  state.cgOffset = Number($('cg').value);
-  state.aoa = Number($('aoa').value);
-  state.speed = Number($('speed').value);
+  state.ballast = Number(ballastInput.value);
+  state.cgOffset = Number(cgInput.value);
+  state.aoa = Number(aoaInput.value);
+  state.speed = Number(speedInput.value);
 
   $('ballastVal').textContent = state.ballast + ' g';
-  $('cgVal').textContent =
-    (state.cgOffset > 0 ? '+' : '') +
-    state.cgOffset + ' mm';
-
+  $('cgVal').textContent = (state.cgOffset > 0 ? '+' : '') + state.cgOffset + ' mm';
   $('aoaVal').textContent = state.aoa.toFixed(1) + '°';
   $('speedVal').textContent = state.speed.toFixed(1) + ' m/s';
 
-  updateMode();
-  updateTelemetry();
+  updateModeBadge();
 }
 
-['ballast', 'cg', 'aoa', 'speed'].forEach(id => {
-  $(id).addEventListener('input', readInputs);
-});
-
-function updateMode() {
-  const badge = $('mode');
-  const theory = $('theory');
+function updateModeBadge() {
+  const badge = $('modeBadge');
+  const theory = $('theoryText');
 
   if (state.cgOffset > 5) {
     badge.textContent = 'Stable CG';
-    badge.className =
-      'text-xs rounded-full px-3 py-1 bg-emerald-500/20 text-emerald-300';
-
-    theory.textContent =
-      'The CG is ahead of the aerodynamic center. In this model, an increase in angle of attack produces a restoring nose-down pitching moment. This corresponds to positive longitudinal static stability, assuming the other aerodynamic derivatives are appropriate.';
+    badge.className = 'text-xs rounded-full px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold';
+    theory.textContent = 'With the CG well ahead of the Aerodynamic Center (AC), an increase in angle of attack produces a restoring nose-down pitching moment. This provides positive longitudinal static stability, enabling a steady glide path.';
   } else if (state.cgOffset < -5) {
     badge.textContent = 'Unstable CG';
-    badge.className =
-      'text-xs rounded-full px-3 py-1 bg-rose-500/20 text-rose-300';
-
-    theory.textContent =
-      'The CG is behind the aerodynamic center. In this model, an increase in angle of attack produces a destabilizing nose-up pitching moment. Pitch disturbances can grow instead of returning toward equilibrium.';
+    badge.className = 'text-xs rounded-full px-3 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold';
+    theory.textContent = 'With the CG behind the Aerodynamic Center, any pitch disturbance is amplified. This results in pitch instability, nose-up stalls, or rapid loss of altitude and control.';
   } else {
-    badge.textContent = 'Near Neutral';
-    badge.className =
-      'text-xs rounded-full px-3 py-1 bg-amber-500/20 text-amber-300';
-
-    theory.textContent =
-      'The CG is near the aerodynamic center. The simplified static restoring contribution is small. Pitch behavior depends more strongly on the assumed aerodynamic moment derivatives and damping.';
+    badge.textContent = 'Neutral CG';
+    badge.className = 'text-xs rounded-full px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold';
+    theory.textContent = 'With the CG coincident with the AC, the static restoring pitching moment is zero. Flight behavior is highly sensitive to disturbances and damping.';
   }
 }
 
-/* =========================================
-   PRESETS
-========================================= */
-
-function setPreset(mode) {
-  if (mode === 'stable') {
-    $('ballast').value = 200;
-    $('cg').value = 35;
-    $('aoa').value = 5;
-    $('speed').value = 12;
-  } else if (mode === 'neutral') {
-    $('ballast').value = 100;
-    $('cg').value = 0;
-    $('aoa').value = 5;
-    $('speed').value = 12;
-  } else {
-    $('ballast').value = 0;
-    $('cg').value = -15;
-    $('aoa').value = 5;
-    $('speed').value = 12;
+function setPreset(type) {
+  if (type === 'stable') {
+    ballastInput.value = 200;
+    cgInput.value = 35;
+    aoaInput.value = 5.0;
+    speedInput.value = 12.0;
+  } else if (type === 'neutral') {
+    ballastInput.value = 100;
+    cgInput.value = 0;
+    aoaInput.value = 5.0;
+    speedInput.value = 12.0;
+  } else if (type === 'unstable') {
+    ballastInput.value = 0;
+    cgInput.value = -15;
+    aoaInput.value = 6.0;
+    speedInput.value = 11.0;
   }
-
   readInputs();
   resetSimulation();
 }
 
-/* =========================================
-   AERODYNAMIC MODEL
-========================================= */
+// Attach listener events to inputs for real-time reactivity
+[ballastInput, cgInput, aoaInput, speedInput].forEach(elem => {
+  elem.addEventListener('input', () => {
+    readInputs();
+  });
+});
 
-/*
-  Simplified flat-plate model.
+function resetSimulation() {
+  readInputs();
+  state.x = 0;
+  state.y = 10;
+  state.vx = state.speed;
+  state.vy = 0;
+  state.pitch = state.aoa * Math.PI / 180;
+  state.pitchRate = 0;
+  state.time = 0;
+  state.landed = false;
+  state.paused = false;
 
-  CL = 1.8 sin(alpha) cos(alpha)
+  state.history = [{ time: 0, pitch: state.aoa, x: 0, y: 10 }];
 
-  CD = CD0 + 1.8 sin^2(alpha)
+  $('pauseBtn').textContent = 'Pause';
+  $('statusMsg').textContent = 'Simulation running...';
+  $('statusMsg').className = 'text-sm font-semibold text-emerald-400 mt-1';
+}
 
-  Cm = CmAC - CL * (CG ahead of AC / chord)
-       + CmQ * nondimensional pitch rate
+function togglePause() {
+  if (state.landed) return;
+  state.paused = !state.paused;
+  $('pauseBtn').textContent = state.paused ? 'Resume' : 'Pause';
+  $('statusMsg').textContent = state.paused ? 'Simulation paused' : 'Simulation running...';
+}
 
-  Positive CG offset means forward of AC.
-
-  Positive pitching moment means nose-up.
-*/
-
-function aerodynamicModel() {
-  const vx = state.vx;
-  const vy = state.vy;
-
-  const speed = Math.max(0.1, Math.hypot(vx, vy));
-  const flightPath = Math.atan2(vy, vx);
-
-  // Angle of attack = body pitch - flight path angle
-  const alpha = state.pitch - flightPath;
+// Aerodynamic calculations
+function computeAerodynamics() {
+  const speed = Math.max(0.1, Math.hypot(state.vx, state.vy));
+  const flightPathAngle = Math.atan2(state.vy, state.vx);
+  const alpha = state.pitch - flightPathAngle; // Angle of attack
 
   const sinA = Math.sin(alpha);
   const cosA = Math.cos(alpha);
 
-  // Flat-plate approximation
-  const CL = 1.8 * sinA * cosA;
-  const CD = MODEL.cd0 + 1.8 * sinA * sinA;
+  // Flat plate aerodynamics approximation
+  const CL = 1.9 * sinA * cosA;
+  const CD = MODEL.cd0 + 1.8 * (sinA * sinA);
 
   const qbar = 0.5 * MODEL.rho * speed * speed;
-
   const lift = qbar * MODEL.area * CL;
   const drag = qbar * MODEL.area * CD;
 
-  // Nondimensional pitch rate
-  const qHat = state.pitchRate * MODEL.chord / (2 * speed);
+  const qHat = (state.pitchRate * MODEL.chord) / (2 * speed);
+  const cgOffsetMeters = state.cgOffset / 1000; // mm to meters
 
-  // Forward CG produces a negative static restoring contribution
-  const cgAhead = state.cgOffset / 1000;
-
-  const Cm =
-    MODEL.cmAC -
-    CL * (cgAhead / MODEL.chord) +
-    MODEL.cmQ * qHat;
-
+  // Pitching moment coefficient Cm = Cm_ac - CL * (CG ahead of AC / chord) + damping
+  const Cm = MODEL.cmAC - CL * (cgOffsetMeters / MODEL.chord) + MODEL.cmQ * qHat;
   const moment = qbar * MODEL.area * MODEL.chord * Cm;
 
-  return {
-    speed,
-    flightPath,
-    alpha,
-    CL,
-    CD,
-    lift,
-    drag,
-    moment,
-    qbar
-  };
+  return { speed, flightPathAngle, alpha, lift, drag, moment };
 }
 
-/* =========================================
-   FLIGHT DYNAMICS
-========================================= */
-
 function updatePhysics(dt) {
-  if (!state.launched || state.paused || state.landed) return;
+  if (state.paused || state.landed) return;
 
-  const aero = aerodynamicModel();
+  const aero = computeAerodynamics();
+  const totalMass = MODEL.baseMass + (state.ballast / 1000);
+  const gamma = aero.flightPathAngle;
 
-  const mass = MODEL.baseMass + state.ballast / 1000;
+  const forceX = -aero.drag * Math.cos(gamma) - aero.lift * Math.sin(gamma);
+  const forceY = -aero.drag * Math.sin(gamma) + aero.lift * Math.cos(gamma) - (totalMass * MODEL.gravity);
 
-  // Aerodynamic forces in world coordinates
-  const gamma = aero.flightPath;
+  const ax = forceX / totalMass;
+  const ay = forceY / totalMass;
 
-  const forceX =
-    -aero.drag * Math.cos(gamma) -
-    aero.lift * Math.sin(gamma);
-
-  const forceY =
-    -aero.drag * Math.sin(gamma) +
-    aero.lift * Math.cos(gamma) -
-    mass * MODEL.gravity;
-
-  const ax = forceX / mass;
-  const ay = forceY / mass;
-
-  // Translational motion
   state.vx += ax * dt;
   state.vy += ay * dt;
-
   state.x += state.vx * dt;
   state.y += state.vy * dt;
 
-  // Rotational motion: Iyy * theta_ddot = pitching moment
-  const angularAcceleration = aero.moment / MODEL.inertia;
-
-  state.pitchRate += angularAcceleration * dt;
+  const angularAccel = aero.moment / MODEL.inertia;
+  state.pitchRate += angularAccel * dt;
   state.pitch += state.pitchRate * dt;
-
   state.time += dt;
 
   state.lift = aero.lift;
@@ -487,205 +395,104 @@ function updatePhysics(dt) {
   state.moment = aero.moment;
   state.alpha = aero.alpha;
 
-  // Ground contact
+  // Ground check
   if (state.y <= 0) {
     state.y = 0;
     state.vy = 0;
+    state.vx = 0;
+    state.pitchRate = 0;
     state.landed = true;
-    $('status').textContent =
-      'Ground contact | Flight time: ' + state.time.toFixed(2) + ' s';
-    $('status').className = 'text-sm text-amber-400';
+    $('statusMsg').textContent = `Landing complete! Flight time: ${state.time.toFixed(2)}s | Range: ${state.x.toFixed(1)}m`;
+    $('statusMsg').className = 'text-sm font-semibold text-amber-400 mt-1';
   }
 
-  // Stop runaway numerical values
-  if (
-    !Number.isFinite(state.pitch) ||
-    !Number.isFinite(state.x) ||
-    !Number.isFinite(state.y) ||
-    Math.abs(state.pitch) > 100 * Math.PI
-  ) {
-    state.landed = true;
-    $('status').textContent = 'Simulation stopped: numerical limit reached';
-    $('status').className = 'text-sm text-rose-400';
-  }
-
-  // Record graph data
-  if (
-    state.history.length === 0 ||
-    state.time - state.history[state.history.length - 1].time >= 0.1
-  ) {
+  // Record history every 0.1s
+  const lastH = state.history[state.history.length - 1];
+  if (!lastH || state.time - lastH.time >= 0.1) {
     state.history.push({
       time: state.time,
       pitch: state.pitch * 180 / Math.PI,
       x: state.x,
       y: state.y
     });
-
-    if (state.history.length > 300) {
-      state.history.shift();
-    }
+    if (state.history.length > 400) state.history.shift();
   }
 
-  updateTelemetry();
+  updateTelemetryUI(aero);
 }
 
-/* =========================================
-   TELEMETRY
-========================================= */
-
-function updateTelemetry() {
-  const aero = aerodynamicModel();
-
-  $('telePitch').textContent =
-    (state.pitch * 180 / Math.PI).toFixed(1) + '°';
-
-  $('teleAlt').textContent =
-    Math.max(0, state.y).toFixed(2) + ' m';
-
-  $('teleLift').textContent =
-    state.lift.toFixed(2) + ' N';
-
-  $('teleMoment').textContent =
-    (state.moment >= 0 ? '+' : '') +
-    state.moment.toFixed(3) + ' Nm';
-
-  $('teleSpeed').textContent =
-    aero.speed.toFixed(2) + ' m/s';
-
-  $('teleAlpha').textContent =
-    (state.alpha * 180 / Math.PI).toFixed(2) + '°';
+function updateTelemetryUI(aero) {
+  $('telePitch').textContent = (state.pitch * 180 / Math.PI).toFixed(1) + '°';
+  $('teleAlt').textContent = Math.max(0, state.y).toFixed(2) + ' m';
+  $('teleLift').textContent = state.lift.toFixed(2) + ' N';
+  $('teleMoment').textContent = (state.moment >= 0 ? '+' : '') + state.moment.toFixed(3) + ' Nm';
+  $('teleSpeed').textContent = aero.speed.toFixed(1) + ' m/s';
+  $('teleAlpha').textContent = (aero.alpha * 180 / Math.PI).toFixed(1) + '°';
 
   $('hudTime').textContent = state.time.toFixed(2) + ' s';
-  $('hudDist').textContent = state.x.toFixed(2) + ' m';
+  $('hudDist').textContent = state.x.toFixed(1) + ' m';
 }
 
-/* =========================================
-   RESET AND LAUNCH
-========================================= */
-
-function resetSimulation() {
-  readInputs();
-
-  state.x = 0;
-  state.y = 10;
-
-  // Launch velocity is initially horizontal.
-  // Body pitch is set to the selected launch AoA.
-  // This gives the selected initial aerodynamic angle of attack.
-  state.vx = state.speed;
-  state.vy = 0;
-
-  state.pitch = state.aoa * Math.PI / 180;
-  state.pitchRate = 0;
-
-  state.time = 0;
-  state.lift = 0;
-  state.drag = 0;
-  state.moment = 0;
-  state.alpha = state.pitch;
-
-  state.history = [{
-    time: 0,
-    pitch: state.aoa,
-    x: 0,
-    y: 10
-  }];
-
-  state.launched = true;
-  state.landed = false;
-
-  $('status').textContent = 'Simulation running';
-  $('status').className = 'text-sm text-emerald-400';
-
-  updateTelemetry();
-  draw();
-}
-
-function triggerLaunch() {
-  state.paused = false;
-  $('pauseBtn').textContent = 'Pause';
-  resetSimulation();
-}
-
-function togglePause() {
-  if (!state.launched || state.landed) return;
-
-  state.paused = !state.paused;
-
-  $('pauseBtn').textContent =
-    state.paused ? 'Resume' : 'Pause';
-
-  $('status').textContent =
-    state.paused ? 'Simulation paused' : 'Simulation running';
-}
-
-/* =========================================
-   MAIN CANVAS DRAWING
-========================================= */
-
-function draw() {
-  drawFlight();
+// Rendering
+function drawAll() {
+  drawMainVisualizer();
   drawPitchChart();
-  drawTrajectoryChart();
+  drawTrajChart();
 }
 
-function drawFlight() {
-  const { w, h } = resizeDimensions(simCanvas);
+function drawMainVisualizer() {
+  const rect = simCanvas.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
   simCtx.clearRect(0, 0, w, h);
 
-  // Sky
+  // Background sky
   simCtx.fillStyle = '#0b0f19';
   simCtx.fillRect(0, 0, w, h);
 
-  // Horizon and ground
-  const ground = h - 35;
-
+  // Ground
+  const groundY = h - 35;
   simCtx.fillStyle = '#1e293b';
-  simCtx.fillRect(0, ground, w, 35);
-
+  simCtx.fillRect(0, groundY, w, 35);
   simCtx.strokeStyle = '#38bdf8';
   simCtx.lineWidth = 2;
   simCtx.beginPath();
-  simCtx.moveTo(0, ground);
-  simCtx.lineTo(w, ground);
+  simCtx.moveTo(0, groundY);
+  simCtx.lineTo(w, groundY);
   simCtx.stroke();
 
-  // Scale the flight history to fit the visible area
+  // Draw Trajectory Trail on canvas
   if (state.history.length > 1) {
-    const maxX = Math.max(10, ...state.history.map(p => p.x));
+    const maxX = Math.max(15, ...state.history.map(p => p.x));
     const maxY = Math.max(12, ...state.history.map(p => p.y));
 
-    simCtx.strokeStyle = 'rgba(56,189,248,0.75)';
+    simCtx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
     simCtx.lineWidth = 2;
     simCtx.beginPath();
-
-    state.history.forEach((p, i) => {
-      const px = 15 + (p.x / maxX) * (w - 30);
-      const py = ground - 5 - (p.y / maxY) * (ground - 15);
-
+    state.history.forEach((pt, i) => {
+      const px = 20 + (pt.x / maxX) * (w - 40);
+      const py = groundY - 10 - (pt.y / maxY) * (groundY - 30);
       if (i === 0) simCtx.moveTo(px, py);
       else simCtx.lineTo(px, py);
     });
-
     simCtx.stroke();
   }
 
-  // Glider visualization
-  const cx = Math.min(160, w * 0.3);
-  const cy = Math.min(ground - 80, Math.max(90, h * 0.48));
+  // Draw Aircraft Diamond Wing
+  const cx = Math.min(180, w * 0.32);
+  const cy = Math.min(groundY - 80, Math.max(90, h * 0.45));
 
   simCtx.save();
   simCtx.translate(cx, cy);
   simCtx.rotate(-state.pitch);
 
-  const chord = 140;
-  const span = 140;
+  const chord = 130;
+  const span = 130;
 
-  // Wing body
-  simCtx.fillStyle = 'rgba(56,189,248,0.17)';
+  // Wing body fill
+  simCtx.fillStyle = 'rgba(56, 189, 248, 0.15)';
   simCtx.strokeStyle = '#38bdf8';
   simCtx.lineWidth = 2;
-
   simCtx.beginPath();
   simCtx.moveTo(-chord / 2, 0);
   simCtx.lineTo(0, -span / 2);
@@ -695,10 +502,9 @@ function drawFlight() {
   simCtx.fill();
   simCtx.stroke();
 
-  // Structural supports
+  // Carbon fiber cross struts
   simCtx.strokeStyle = '#64748b';
   simCtx.lineWidth = 3;
-
   simCtx.beginPath();
   simCtx.moveTo(-chord / 2, 0);
   simCtx.lineTo(chord / 2, 0);
@@ -706,161 +512,123 @@ function drawFlight() {
   simCtx.lineTo(0, span / 2);
   simCtx.stroke();
 
-  // AC marker
-  const acX = -chord / 2 + chord * 0.25;
-
+  // AC marker (1/4 MAC from leading edge)
+  const acX = -chord / 2 + (chord * 0.25);
   simCtx.fillStyle = '#38bdf8';
   simCtx.beginPath();
   simCtx.arc(acX, 0, 5, 0, Math.PI * 2);
   simCtx.fill();
-
   simCtx.fillStyle = '#94a3b8';
-  simCtx.font = '11px Arial';
-  simCtx.fillText('AC', acX - 10, -12);
+  simCtx.font = '10px sans-serif';
+  simCtx.fillText('AC', acX - 6, -10);
 
-  // CG marker
+  // CG marker (shifted relative to AC)
   const cgX = acX - (state.cgOffset / 60) * (chord * 0.3);
-
   simCtx.fillStyle = '#f43f5e';
   simCtx.beginPath();
   simCtx.arc(cgX, 0, 6, 0, Math.PI * 2);
   simCtx.fill();
-
   simCtx.fillStyle = '#fb7185';
-  simCtx.fillText('CG', cgX - 10, 19);
+  simCtx.fillText('CG', cgX - 6, 20);
 
-  // Ballast marker (illustrative)
+  // Ballast weight box near leading edge
   if (state.ballast > 0) {
     simCtx.fillStyle = '#fbbf24';
-    simCtx.fillRect(-chord / 2 - 7, -5, 10, 10);
-    simCtx.fillText(
-      state.ballast + ' g',
-      -chord / 2 - 25,
-      32
-    );
+    simCtx.fillRect(-chord / 2 - 6, -5, 10, 10);
+    simCtx.fillStyle = '#fef08a';
+    simCtx.font = '9px sans-serif';
+    simCtx.fillText(state.ballast + 'g', -chord / 2 - 24, 25);
   }
 
   simCtx.restore();
 }
 
-function resizeDimensions(canvas) {
-  const rect = canvas.getBoundingClientRect();
-  return { w: rect.width, h: rect.height };
-}
-
-/* =========================================
-   GRAPH DRAWING
-========================================= */
-
 function drawPitchChart() {
-  const { w, h } = resizeDimensions(pitchCanvas);
+  const rect = pitchCanvas.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
   pitchCtx.clearRect(0, 0, w, h);
-
-  drawGrid(pitchCtx, w, h);
+  drawGridLines(pitchCtx, w, h);
 
   if (state.history.length < 2) return;
-
-  const maxTime = Math.max(
-    5,
-    state.history[state.history.length - 1].time
-  );
-
-  const pitchValues = state.history.map(p => p.pitch);
-  const minP = Math.min(-10, ...pitchValues);
-  const maxP = Math.max(20, ...pitchValues);
+  const maxTime = Math.max(5, state.history[state.history.length - 1].time);
+  const pitches = state.history.map(p => p.pitch);
+  const minP = Math.min(-10, ...pitches);
+  const maxP = Math.max(20, ...pitches);
   const range = Math.max(1, maxP - minP);
 
   pitchCtx.strokeStyle = '#22d3ee';
   pitchCtx.lineWidth = 2;
   pitchCtx.beginPath();
-
-  state.history.forEach((p, i) => {
-    const x = (p.time / maxTime) * w;
-    const y = h - ((p.pitch - minP) / range) * (h - 10) - 5;
-
+  state.history.forEach((pt, i) => {
+    const x = (pt.time / maxTime) * w;
+    const y = h - ((pt.pitch - minP) / range) * (h - 10) - 5;
     if (i === 0) pitchCtx.moveTo(x, y);
     else pitchCtx.lineTo(x, y);
   });
-
   pitchCtx.stroke();
 }
 
-function drawTrajectoryChart() {
-  const { w, h } = resizeDimensions(trajCanvas);
+function drawTrajChart() {
+  const rect = trajCanvas.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
   trajCtx.clearRect(0, 0, w, h);
-
-  drawGrid(trajCtx, w, h);
+  drawGridLines(trajCtx, w, h);
 
   if (state.history.length < 2) return;
-
-  const maxX = Math.max(5, ...state.history.map(p => p.x));
+  const maxX = Math.max(10, ...state.history.map(p => p.x));
   const maxY = Math.max(12, ...state.history.map(p => p.y));
 
   trajCtx.strokeStyle = '#10b981';
   trajCtx.lineWidth = 2;
   trajCtx.beginPath();
-
-  state.history.forEach((p, i) => {
-    const x = (p.x / maxX) * w;
-    const y = h - (p.y / maxY) * (h - 10) - 5;
-
+  state.history.forEach((pt, i) => {
+    const x = (pt.x / maxX) * w;
+    const y = h - (pt.y / maxY) * (h - 10) - 5;
     if (i === 0) trajCtx.moveTo(x, y);
     else trajCtx.lineTo(x, y);
   });
-
   trajCtx.stroke();
 }
 
-function drawGrid(ctx, w, h) {
+function drawGridLines(ctx, w, h) {
   ctx.strokeStyle = '#1e293b';
   ctx.lineWidth = 1;
-
   for (let i = 1; i < 4; i++) {
     ctx.beginPath();
-    ctx.moveTo(0, h * i / 4);
-    ctx.lineTo(w, h * i / 4);
+    ctx.moveTo(0, (h * i) / 4);
+    ctx.lineTo(w, (h * i) / 4);
     ctx.stroke();
   }
 }
 
-/* =========================================
-   FIXED TIMESTEP ANIMATION
-========================================= */
-
-let lastTimestamp = 0;
+// Main Animation & Fixed Timestep Loop
+let lastTime = performance.now();
 let accumulator = 0;
 
-function animationLoop(timestamp) {
-  if (!lastTimestamp) lastTimestamp = timestamp;
+function loop(timestamp) {
+  const frameTime = (timestamp - lastTime) / 1000;
+  lastTime = timestamp;
 
-  let frameTime = (timestamp - lastTimestamp) / 1000;
-  lastTimestamp = timestamp;
-
-  // Avoid excessive catch-up after inactive tabs
-  frameTime = Math.min(frameTime, 0.05);
-
-  if (!state.paused && state.launched && !state.landed) {
-    accumulator += frameTime;
-
-    while (accumulator >= MODEL.dt) {
-      updatePhysics(MODEL.dt);
-      accumulator -= MODEL.dt;
-    }
+  accumulator += Math.min(frameTime, 0.05);
+  while (accumulator >= MODEL.dt) {
+    updatePhysics(MODEL.dt);
+    accumulator -= MODEL.dt;
   }
 
-  draw();
-  requestAnimationFrame(animationLoop);
+  drawAll();
+  requestAnimationFrame(loop);
 }
 
-/* =========================================
-   INITIALIZATION
-========================================= */
+// Initialize on load
+window.addEventListener('resize', () => {
+  setupCanvasResolutions();
+  drawAll();
+});
 
+setupCanvasResolutions();
 readInputs();
-resizeAll();
 resetSimulation();
-requestAnimationFrame(animationLoop);
-
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
